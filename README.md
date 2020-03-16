@@ -1,6 +1,13 @@
 # estring
 estring was made for simpler strings operations in PHP just like JS does
 
+# Installation
+
+Right now the only option is using Composer:
+```sh
+composer require alexeyyashin/estring
+```
+
 # Example
 ```php
 $first = '  Some string to operate';
