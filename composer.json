@@ -1,0 +1,21 @@
+{
+    "name": "alexeyyashin/estring",
+    "description": "EString",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alexey Yashin",
+            "email": "alx@ayashin.ru"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "AlexeyYashin\\EString\\": "src/"
+        },
+        "files": [
+            "src/estring.func.php"
+        ]
+    }
+}
