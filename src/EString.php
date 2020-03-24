@@ -8,7 +8,7 @@ class EString
 
     public function __construct($string = '')
     {
-        $this->string = (string)$string;
+        $this->string = (string) $string;
     }
 
     public function startsWith($substr, $i = false): bool
@@ -50,7 +50,7 @@ class EString
             (
                 $strict
                 && (
-                    $this->string === (string)$string
+                    $this->string === (string) $string
                 )
             )
             || $this->string == $string->string
@@ -59,7 +59,7 @@ class EString
 
     public function length()
     {
-        return (int)mb_strlen($this->string);
+        return (int) mb_strlen($this->string);
     }
 
     public function replace($search, $replace = null)
@@ -132,6 +132,80 @@ class EString
     public function toUpperSnakeCase()
     {
         return new self(implode('_', $this->caseArray(true)));
+    }
+
+    public function fill(array $vars, string $group_delimeter = '.')
+    {
+        $vars = self::getSingleArray($vars, $group_delimeter);
+
+        $newString = preg_replace_callback('/{(?<mod>.*?){\\s*(?<key>.*?)\\s*(=\\s*(?<default>.*))?\\s*}}/',
+            function ($matches) use ($vars)
+            {
+                if (array_key_exists($matches['key'], $vars)) {
+                    $value = $vars[$matches['key']];
+                } elseif (array_key_exists('default', $matches)) {
+                    $value = $matches['default'];
+                } else {
+                    return '';
+                }
+
+                switch ($matches['mod']) {
+                    case '%':
+                    {
+                        return urlencode($value);
+                    }
+                    case '&':
+                    {
+                        return htmlspecialchars($value);
+                    }
+                    default:
+                    {
+                        if (
+                            mb_strlen($matches['mod'])
+                            && function_exists($matches['mod'])
+                        ) {
+                            return call_user_func($matches['mod'], $value);
+                        }
+
+                        return $value;
+                    }
+                }
+            },
+            $this
+        );
+
+        return new self($newString);
+    }
+
+    private static function getSingleArray($array, $delimiter, $startKey = '')
+    {
+        if ( ! is_array($array)) {
+            $array = [$array];
+        }
+
+        $newArray = [];
+
+        $startKey = $startKey ? ($startKey . $delimiter) : '';
+
+        foreach ($array as $key => $value) {
+
+            if (is_object($value)) {
+                if (method_exists($value, '__toString')) {
+                    $value = call_user_func([$value, '__toString']);
+                } else {
+                    $value = get_object_vars($value);
+                }
+            }
+
+            if (is_array($value)) {
+                /** @noinspection SlowArrayOperationsInLoopInspection */
+                $newArray = array_merge($newArray, self::getSingleArray($value, $delimiter, $startKey . $key));
+            } else {
+                $newArray[$startKey . $key] = $value;
+            }
+        }
+
+        return $newArray;
     }
 
     public function __toString()
