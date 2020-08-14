@@ -32,3 +32,7 @@ if ($third->trim()->startsWith('some', true)) {
   echo "found but ending\n";
 }
 ```
+
+# See more info in documentation
+(not finished yet)
+[Usage.md](https://github.com/alexeyyashin/estring/blob/documentation/docs/usage.md)
