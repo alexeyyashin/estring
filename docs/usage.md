@@ -92,6 +92,6 @@ Return value:
 >
 > /* Case dependency: */
 > var_dump(estring('FOO BAR')->endsWith('bar')); // bool(false)
-> var_dump(estring('FOO BAR')->endsWith('BAR'), true); // bool(true)
+> var_dump(estring('FOO BAR')->endsWith('bar'), true); // bool(true)
 > ```
 
