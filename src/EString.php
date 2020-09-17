@@ -92,10 +92,13 @@ class EString
 
     protected function caseArray($toupper = false)
     {
+        $str = preg_replace_callback('/[A-Z][a-z]/', function($m) {
+            return '_' . mb_strtolower($m[0]);
+        }, $this->string);
         $str = preg_replace_callback('/([A-Z]{2,})/', function ($m)
         {
-            return sprintf('_%s_', $m[0]);
-        }, $this->string);
+            return sprintf('_%s_', mb_strtolower($m[0]));
+        }, $str);
         $str = preg_replace('/[A-Z]/', '_$0', $str);
 
         $str = (new EString($str));
