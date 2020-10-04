@@ -141,7 +141,7 @@ class EString
     {
         $vars = self::getSingleArray($vars, $group_delimeter);
 
-        $newString = preg_replace_callback('/{(?<mod>.*?){\\s*(?<key>.*?)\\s*(=\\s*(?<default>.*?))?\\s*}}/',
+        $newString = preg_replace_callback('/{(?<mod>[^{]*?){\\s*(?<key>[^{]*?)\\s*(=\s*(?<default>.*?))?\\s*}}/',
             function ($matches) use ($vars)
             {
                 if (array_key_exists($matches['key'], $vars)) {
