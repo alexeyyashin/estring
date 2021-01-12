@@ -6,6 +6,14 @@
   * [Substrings](#substrings)
     * [startsWith](#startswith)
     * [endsWith](#endsWith)
+* [Modifications](#modifications)
+  * [Case modifications](#case-modifications)
+    * [toLowerCase](#tolowercase)
+    * [toUpperCase](#touppercase)
+    * [toCamelCase](#tocamelcase)
+    * [toLowerCamelCase](#tolowercamelcase)
+    * [toSnakeCase](#tosnakecase)
+    * [toUpperSnakeCase](#toUpperSnakeCase)
 
 # Basic usage
 
@@ -95,3 +103,102 @@ Return value:
 > var_dump(estring('FOO BAR')->endsWith('bar'), true); // bool(true)
 > ```
 
+# Modifications
+
+## Case modifications
+
+### toLowerCase
+
+**Casts content to lower case. Equals to estring(mb_strtolower($some_string))**
+
+```toLowerCase(): EString```
+
+### toUpperCase
+
+**Casts content to upper case. Equals to estring(mb_strtoupper($some_string))**
+
+```toUpperCase(): EString```
+
+### toCamelCase
+
+**Casts content to camel case.**
+
+```toCamelCase(): EString```
+
+Return value:
+EString object containing modified string
+
+Example
+```php
+var_dump(estring('some awesome string modifications')->toCamelCase());
+
+/*
+object(AlexeyYashin\EString\EString)#1 (1) {
+  ["string"]=>
+  string(30) "SomeAwesomeStringModifications"
+}
+*/
+```
+
+### toLowerCamelCase
+
+**Casts content to lower camel case.**
+
+```toLowerCamelCase(): EString```
+
+Return value:
+EString object containing modified string
+
+Example
+```php
+var_dump(estring('some awesome string modifications')->toLowerCamelCase());
+
+/*
+object(AlexeyYashin\EString\EString)#1 (1) {
+  ["string"]=>
+  string(30) "someAwesomeStringModifications"
+}
+*/
+```
+
+### toSnakeCase
+
+**Casts content to snake case.**
+
+```toSnakeCase(): EString```
+
+Return value:
+EString object containing modified string
+
+Example
+```php
+var_dump(estring('some awesome string modifications')->toSnakeCase());
+
+/*
+object(AlexeyYashin\EString\EString)#1 (1) {
+  ["string"]=>
+  string(33) "some_awesome_string_modifications"
+}
+*/
+```
+
+### toUpperSnakeCase
+
+**Casts content to snake case.**
+
+```toUpperSnakeCase(): EString```
+
+Return value:
+EString object containing modified string
+
+Example
+```php
+var_dump(estring('some awesome string modifications')->toUpperSnakeCase());
+
+/*
+object(AlexeyYashin\EString\EString)#1 (1) {
+  ["string"]=>
+  string(33) "SOME_AWESOME_STRING_MODIFICATIONS"
+}
+*/
+```
