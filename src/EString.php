@@ -92,10 +92,11 @@ class EString
 
     protected function caseArray($toupper = false)
     {
-        $str = preg_replace_callback('/[A-Z][a-z]/', function($m) {
+        $str = preg_replace_callback('/[A-Z][a-z]/', function($m)
+        {
             return '_' . mb_strtolower($m[0]);
         }, $this->string);
-        $str = preg_replace_callback('/([A-Z]{2,})/', function ($m)
+        $str = preg_replace_callback('/([A-Z]{2,})/', function($m)
         {
             return sprintf('_%s_', mb_strtolower($m[0]));
         }, $str);
@@ -137,32 +138,54 @@ class EString
         return new self(implode('_', $this->caseArray(true)));
     }
 
+    protected static function getValueFromArray($array, $key, $delimeter = '.')
+    {
+        $current_value = $array;
+
+        if ( ! $key || ! $array) {
+            return null;
+        }
+
+        foreach (explode($delimeter, $key) as $key) {
+            if (is_array($current_value)) {
+                if ( ! array_key_exists($key, $current_value)) {
+                    return [null, false];
+                }
+                $current_value = $current_value[$key];
+            } elseif (is_object($current_value)) {
+                if ( ! property_exists($current_value, $key)) {
+                    return [null, false];
+                }
+                $current_value = $current_value->$key;
+            } else {
+                return [null, false];
+            }
+        }
+
+        return [$current_value, true];
+    }
+
     public function fill(array $vars, string $group_delimeter = '.')
     {
-        $vars = self::getSingleArray($vars, $group_delimeter);
-
         $newString = preg_replace_callback('/{(?<mod>[^{]*?){\\s*(?<key>[^{]*?)\\s*(=\s*(?<default>.*?))?\\s*}}/',
-            function ($matches) use ($vars)
+            function($matches) use ($vars, $group_delimeter)
             {
-                if (array_key_exists($matches['key'], $vars)) {
-                    $value = $vars[$matches['key']];
-                } elseif (array_key_exists('default', $matches)) {
-                    $value = $matches['default'];
-                } else {
-                    return '';
+                [$value, $found] = self::getValueFromArray($vars, $matches['key'], $group_delimeter);
+
+                if ( ! $found) {
+                    if (array_key_exists('default', $matches)) {
+                        $value = $matches['default'];
+                    } else {
+                        return '';
+                    }
                 }
 
                 switch ($matches['mod']) {
                     case '%':
-                    {
                         return urlencode($value);
-                    }
                     case '&':
-                    {
                         return htmlspecialchars($value);
-                    }
                     default:
-                    {
                         if (
                             mb_strlen($matches['mod'])
                             && function_exists($matches['mod'])
@@ -171,44 +194,12 @@ class EString
                         }
 
                         return $value;
-                    }
                 }
             },
             $this
         );
 
         return new self($newString);
-    }
-
-    private static function getSingleArray($array, $delimiter, $startKey = '')
-    {
-        if ( ! is_array($array)) {
-            $array = [$array];
-        }
-
-        $newArray = [];
-
-        $startKey = $startKey ? ($startKey . $delimiter) : '';
-
-        foreach ($array as $key => $value) {
-
-            if (is_object($value)) {
-                if (method_exists($value, '__toString')) {
-                    $value = call_user_func([$value, '__toString']);
-                } else {
-                    $value = get_object_vars($value);
-                }
-            }
-
-            if (is_array($value)) {
-                /** @noinspection SlowArrayOperationsInLoopInspection */
-                $newArray = array_merge($newArray, self::getSingleArray($value, $delimiter, $startKey . $key));
-            } else {
-                $newArray[$startKey . $key] = $value;
-            }
-        }
-
-        return $newArray;
     }
 
     public function __toString()
