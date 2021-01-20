@@ -208,6 +208,32 @@ class EString
         return new self($newString);
     }
 
+    public function cropStart($substr, $i = false)
+    {
+        if ($this->startsWith($substr, $i)) {
+            return new self(substr($this, 0, mb_strlen($substr)));
+        }
+
+        return new self($this);
+    }
+
+    public function cropEnd($substr, $i = false)
+    {
+        if ($this->endsWith($substr, $i)) {
+            return new self(substr($this, - mb_strlen($substr)));
+        }
+
+        return new self($this);
+    }
+
+    public function crop($substr, $i = false)
+    {
+        return $this
+            ->cropStart($substr, $i)
+            ->cropEnd($substr, $i)
+        ;
+    }
+
     public function __toString()
     {
         return $this->string;
