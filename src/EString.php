@@ -153,10 +153,10 @@ class EString
                 }
                 $current_value = $current_value[$key];
             } elseif (is_object($current_value)) {
-                if ( ! property_exists($current_value, $key)) {
+                $current_value = $current_value->$key;
+                if ($current_value === null && ! property_exists($current_value, $key)) {
                     return [null, false];
                 }
-                $current_value = $current_value->$key;
             } else {
                 return [null, false];
             }
@@ -165,7 +165,13 @@ class EString
         return [$current_value, true];
     }
 
-    public function fill(array $vars, string $group_delimeter = '.')
+    /**
+     * @param object|array $vars
+     * @param string $group_delimeter Deprecated
+     *
+     * @return \AlexeyYashin\EString\EString
+     */
+    public function fill($vars, string $group_delimeter = '.')
     {
         $newString = preg_replace_callback('/{(?<mod>[^{]*?){\\s*(?<key>[^{]*?)\\s*(=\s*(?<default>.*?))?\\s*}}/',
             function($matches) use ($vars, $group_delimeter)
