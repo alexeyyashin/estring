@@ -211,7 +211,7 @@ class EString
     public function cropStart($substr, $i = false)
     {
         if ($this->startsWith($substr, $i)) {
-            return new self(substr($this, 0, mb_strlen($substr)));
+            return new self(substr($this, mb_strlen($substr)));
         }
 
         return new self($this);
@@ -220,7 +220,7 @@ class EString
     public function cropEnd($substr, $i = false)
     {
         if ($this->endsWith($substr, $i)) {
-            return new self(substr($this, - mb_strlen($substr)));
+            return new self(substr($this, 0, - mb_strlen($substr)));
         }
 
         return new self($this);
