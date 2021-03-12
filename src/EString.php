@@ -184,20 +184,20 @@ class EString
      */
     protected function caseArray($toupper = false)
     {
-        $str = preg_replace_callback('/[A-Z][a-z]/', function($m)
+        $str = preg_replace_callback('/\p{Lu}\p{Ll}/', function($m)
         {
             return '_' . mb_strtolower($m[0], $this->getCharset());
         }, $this->string);
-        $str = preg_replace_callback('/([A-Z]{2,})/', function($m)
+        $str = preg_replace_callback('/(\p{Lu}{2,})/', function($m)
         {
             return sprintf('_%s_', mb_strtolower($m[0], $this->getCharset()));
         }, $str);
-        $str = preg_replace('/[A-Z]/', '_$0', $str);
+        $str = preg_replace('/\p{Lu}/', '_$0', $str);
 
         $str = $this->getNew($str);
         $str = $toupper ? $str->toUpperCase() : $str->toLowerCase();
 
-        $str = preg_split('/[^a-zA-Z0-9]+/', $str);
+        $str = preg_split('/(?!(\p{L}|\d))./', $str);
 
         return array_filter($str);
     }
