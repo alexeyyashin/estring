@@ -6,6 +6,8 @@ class EString
 {
     public $string = '';
 
+    protected static $fill_regex = '/{(?<mod>[^{]*?){\\s*(?<key>[^{]*?)\\s*(=\s*(?<default>.*?))?\\s*}}/';
+
     public function __construct($string = '')
     {
         $this->string = (string) $string;
@@ -171,41 +173,55 @@ class EString
      *
      * @return \AlexeyYashin\EString\EString
      */
-    public function fill($vars, string $group_delimeter = '.')
+    public function fill($vars, string $group_delimeter = '.', bool $recursive = false)
     {
-        $newString = preg_replace_callback('/{(?<mod>[^{]*?){\\s*(?<key>[^{]*?)\\s*(=\s*(?<default>.*?))?\\s*}}/',
-            function($matches) use ($vars, $group_delimeter)
-            {
-                [$value, $found] = self::getValueFromArray($vars, $matches['key'], $group_delimeter);
+        $newString = $this->string;
+        do {
+            $do = false;
+            $newString = preg_replace_callback(
+                static::$fill_regex,
+                function ($matches) use ($vars, $group_delimeter, &$do, $recursive) {
+                    [$value, $found] = self::getValueFromArray($vars, $matches['key'], $group_delimeter);
 
-                if ( ! $found) {
-                    if (array_key_exists('default', $matches)) {
-                        $value = $matches['default'];
-                    } else {
-                        return '';
-                    }
-                }
-
-                switch ($matches['mod']) {
-                    case '%':
-                        return urlencode($value);
-                    case '&':
-                        return htmlspecialchars($value);
-                    default:
-                        if (
-                            mb_strlen($matches['mod'])
-                            && function_exists($matches['mod'])
-                        ) {
-                            return call_user_func($matches['mod'], $value);
+                    if (!$found) {
+                        if (array_key_exists('default', $matches)) {
+                            $value = $matches['default'];
+                        } else {
+                            return '';
                         }
+                    }
 
-                        return $value;
-                }
-            },
-            $this
-        );
+                    switch ($matches['mod']) {
+                        case '%':
+                            $value = urlencode($value);
+                            break;
+                        case '&':
+                            $value = htmlspecialchars($value);
+                            break;
+                        default:
+                            if (
+                                mb_strlen($matches['mod'])
+                                && function_exists($matches['mod'])
+                            ) {
+                                $value = call_user_func($matches['mod'], $value);
+                            }
+                            break;
+                    }
+
+                    $do = $do || ($recursive && preg_match(static::$fill_regex, $value));
+                    dump(compact('do', 'value'));
+                    return $value;
+                },
+                $newString
+            );
+        } while ($do);
 
         return new self($newString);
+    }
+
+    public function fillRecursive($vars, string $group_delimeter = '.')
+    {
+        return $this->fill($vars, $group_delimeter, true);
     }
 
     public function cropStart($substr, $i = false)
