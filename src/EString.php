@@ -209,7 +209,6 @@ class EString
                     }
 
                     $do = $do || ($recursive && preg_match(static::$fill_regex, $value));
-                    dump(compact('do', 'value'));
                     return $value;
                 },
                 $newString
